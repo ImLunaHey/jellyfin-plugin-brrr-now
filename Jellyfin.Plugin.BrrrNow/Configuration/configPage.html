@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>brrr.now Notifications</title>
+</head>
+<body>
+<div id="BrrrNowConfigPage" data-role="page" class="page type-interior pluginConfigurationPage"
+     data-require="emby-input,emby-button,emby-select,emby-checkbox">
+    <div data-role="content">
+        <div class="content-primary">
+            <form id="BrrrNowConfigForm">
+                <div class="sectionTitleContainer flex align-items-center">
+                    <h2 class="sectionTitle">brrr.now Notifications</h2>
+                </div>
+
+                <div class="inputContainer">
+                    <input is="emby-input" type="password" id="Secret" label="brrr.now secret" required />
+                    <div class="fieldDescription">
+                        The secret from your brrr.now webhook URL (the part after
+                        <code>https://api.brrr.now/v1/</code>). Treat this like a password —
+                        anyone with it can send notifications to your device.
+                    </div>
+                </div>
+
+                <div class="inputContainer">
+                    <input is="emby-input" type="text" id="ThreadId" label="Thread id" />
+                    <div class="fieldDescription">
+                        Groups notifications on the receiving device. Leave blank to send each
+                        notification ungrouped.
+                    </div>
+                </div>
+
+                <div class="selectContainer">
+                    <select is="emby-select" id="Sound" label="Sound">
+                        <option value="">(none)</option>
+                        <option value="default">default</option>
+                        <option value="system">system</option>
+                        <option value="brrr">brrr</option>
+                        <option value="bell_ringing">bell_ringing</option>
+                        <option value="bubble_ding">bubble_ding</option>
+                        <option value="bubbly_success_ding">bubbly_success_ding</option>
+                        <option value="cat_meow">cat_meow</option>
+                        <option value="calm1">calm1</option>
+                        <option value="calm2">calm2</option>
+                        <option value="cha_ching">cha_ching</option>
+                        <option value="dog_barking">dog_barking</option>
+                        <option value="door_bell">door_bell</option>
+                        <option value="duck_quack">duck_quack</option>
+                        <option value="emergency">emergency</option>
+                        <option value="short_triple_blink">short_triple_blink</option>
+                        <option value="upbeat_bells">upbeat_bells</option>
+                        <option value="warm_soft_error">warm_soft_error</option>
+                    </select>
+                </div>
+
+                <div class="selectContainer">
+                    <select is="emby-select" id="InterruptionLevel" label="Interruption level">
+                        <option value="passive">passive — silent, no screen wake</option>
+                        <option value="active">active — normal notification</option>
+                        <option value="time-sensitive">time-sensitive — break through Focus</option>
+                        <option value="critical">critical — requires device opt-in</option>
+                    </select>
+                </div>
+
+                <div class="checkboxContainer">
+                    <label>
+                        <input is="emby-checkbox" type="checkbox" id="IncludeUserName" />
+                        <span>Append the Jellyfin user name to the notification title</span>
+                    </label>
+                </div>
+
+                <h3 style="margin-top: 1.5em;">Events</h3>
+
+                <div class="checkboxContainer">
+                    <label>
+                        <input is="emby-checkbox" type="checkbox" id="NotifyOnPlaybackStart" />
+                        <span>Playback started</span>
+                    </label>
+                </div>
+                <div class="checkboxContainer">
+                    <label>
+                        <input is="emby-checkbox" type="checkbox" id="NotifyOnPlaybackStop" />
+                        <span>Playback stopped</span>
+                    </label>
+                </div>
+                <div class="checkboxContainer">
+                    <label>
+                        <input is="emby-checkbox" type="checkbox" id="NotifyOnItemAdded" />
+                        <span>New item added to library (warning: can be very noisy during scans)</span>
+                    </label>
+                </div>
+                <div class="checkboxContainer">
+                    <label>
+                        <input is="emby-checkbox" type="checkbox" id="NotifyOnPluginInstalled" />
+                        <span>Plugin installed</span>
+                    </label>
+                </div>
+                <div class="checkboxContainer">
+                    <label>
+                        <input is="emby-checkbox" type="checkbox" id="NotifyOnPluginUpdated" />
+                        <span>Plugin updated</span>
+                    </label>
+                </div>
+
+                <div>
+                    <button is="emby-button" type="submit" class="raised button-submit block">
+                        <span>Save</span>
+                    </button>
+                </div>
+
+                <div style="margin-top: 1.5em;">
+                    <button is="emby-button" type="button" id="BrrrNowTestButton" class="raised block">
+                        <span>Send test notification</span>
+                    </button>
+                    <div class="fieldDescription">
+                        Uses the values currently shown in the form (saved or not).
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        (function () {
+            var pluginId = 'a4f8c2d7-1e6b-4c8f-9a3d-7e2f5b8c1d9a';
+
+            function loadConfig(page) {
+                Dashboard.showLoadingMsg();
+                ApiClient.getPluginConfiguration(pluginId).then(function (config) {
+                    page.querySelector('#Secret').value = config.Secret || '';
+                    page.querySelector('#ThreadId').value = config.ThreadId || '';
+                    page.querySelector('#Sound').value = config.Sound || '';
+                    page.querySelector('#InterruptionLevel').value = config.InterruptionLevel || 'active';
+                    page.querySelector('#IncludeUserName').checked = !!config.IncludeUserName;
+                    page.querySelector('#NotifyOnPlaybackStart').checked = !!config.NotifyOnPlaybackStart;
+                    page.querySelector('#NotifyOnPlaybackStop').checked = !!config.NotifyOnPlaybackStop;
+                    page.querySelector('#NotifyOnItemAdded').checked = !!config.NotifyOnItemAdded;
+                    page.querySelector('#NotifyOnPluginInstalled').checked = !!config.NotifyOnPluginInstalled;
+                    page.querySelector('#NotifyOnPluginUpdated').checked = !!config.NotifyOnPluginUpdated;
+                    Dashboard.hideLoadingMsg();
+                });
+            }
+
+            document.querySelector('#BrrrNowConfigPage')
+                .addEventListener('pageshow', function () {
+                    loadConfig(this);
+                });
+
+            document.querySelector('#BrrrNowConfigForm')
+                .addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    var page = this.closest('#BrrrNowConfigPage');
+                    Dashboard.showLoadingMsg();
+                    ApiClient.getPluginConfiguration(pluginId).then(function (config) {
+                        config.Secret = page.querySelector('#Secret').value;
+                        config.ThreadId = page.querySelector('#ThreadId').value;
+                        config.Sound = page.querySelector('#Sound').value;
+                        config.InterruptionLevel = page.querySelector('#InterruptionLevel').value;
+                        config.IncludeUserName = page.querySelector('#IncludeUserName').checked;
+                        config.NotifyOnPlaybackStart = page.querySelector('#NotifyOnPlaybackStart').checked;
+                        config.NotifyOnPlaybackStop = page.querySelector('#NotifyOnPlaybackStop').checked;
+                        config.NotifyOnItemAdded = page.querySelector('#NotifyOnItemAdded').checked;
+                        config.NotifyOnPluginInstalled = page.querySelector('#NotifyOnPluginInstalled').checked;
+                        config.NotifyOnPluginUpdated = page.querySelector('#NotifyOnPluginUpdated').checked;
+                        ApiClient.updatePluginConfiguration(pluginId, config).then(Dashboard.processPluginConfigurationUpdateResult);
+                    });
+                    return false;
+                });
+
+            document.querySelector('#BrrrNowTestButton')
+                .addEventListener('click', function () {
+                    var page = this.closest('#BrrrNowConfigPage');
+                    var body = {
+                        Secret: page.querySelector('#Secret').value,
+                        ThreadId: page.querySelector('#ThreadId').value,
+                        Sound: page.querySelector('#Sound').value,
+                        InterruptionLevel: page.querySelector('#InterruptionLevel').value
+                    };
+                    Dashboard.showLoadingMsg();
+                    ApiClient.ajax({
+                        type: 'POST',
+                        url: ApiClient.getUrl('BrrrNow/TestNotification'),
+                        contentType: 'application/json',
+                        data: JSON.stringify(body)
+                    }).then(function () {
+                        Dashboard.hideLoadingMsg();
+                        Dashboard.alert({ message: 'Test notification sent.', title: 'brrr.now' });
+                    }, function (xhr) {
+                        Dashboard.hideLoadingMsg();
+                        var msg = 'Failed to send test notification.';
+                        try {
+                            var parsed = JSON.parse(xhr.responseText || '{}');
+                            if (parsed && parsed.error) {
+                                msg = parsed.error;
+                            }
+                        } catch (_) { /* ignore */ }
+                        Dashboard.alert({ message: msg, title: 'brrr.now' });
+                    });
+                });
+        })();
+    </script>
+</div>
+</body>
+</html>

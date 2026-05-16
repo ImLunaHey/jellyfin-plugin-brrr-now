@@ -1,0 +1,15 @@
+---
+name: "brrr.now Notifications"
+guid: "a4f8c2d7-1e6b-4c8f-9a3d-7e2f5b8c1d9a"
+version: "1.0.0.0"
+targetAbi: "10.10.0.0"
+framework: "net8.0"
+overview: "Send Jellyfin notifications to your Apple devices via brrr.now."
+description: >-
+  Forwards Jellyfin server notifications (library updates, plugin installations,
+  playback events, etc.) to your iPhone, iPad, or Mac via the brrr.now push
+  notification service.
+category: "Notifications"
+owner: "imlunahey"
+artifacts:
+  - "Jellyfin.Plugin.BrrrNow.dll"
