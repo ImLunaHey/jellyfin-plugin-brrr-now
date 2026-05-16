@@ -1,0 +1,112 @@
+name: release
+
+on:
+  workflow_call:
+    inputs:
+      release_tag:
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Release tag to build and publish (e.g. v0.1.0)'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build, publish release asset, update manifest
+    runs-on: ubuntu-latest
+    env:
+      RELEASE_TAG: ${{ inputs.release_tag }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      TARGET_ABI: '10.10.0.0'
+    steps:
+      - name: Checkout tagged commit
+        uses: actions/checkout@v4
+        with:
+          ref: refs/tags/${{ inputs.release_tag }}
+          fetch-depth: 0
+
+      - name: Resolve version
+        id: version
+        run: |
+          set -euo pipefail
+          version="${RELEASE_TAG#v}"
+          version_4part="${version}.0"
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          echo "version_4part=${version_4part}" >> "$GITHUB_OUTPUT"
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Build plugin
+        run: |
+          dotnet publish Jellyfin.Plugin.BrrrNow/Jellyfin.Plugin.BrrrNow.csproj \
+            -c Release \
+            -o build \
+            /p:Version=${{ steps.version.outputs.version }} \
+            /p:AssemblyVersion=${{ steps.version.outputs.version_4part }} \
+            /p:FileVersion=${{ steps.version.outputs.version_4part }}
+
+      - name: Package zip
+        id: package
+        run: |
+          set -euo pipefail
+          version_4part='${{ steps.version.outputs.version_4part }}'
+          zip_name="jellyfin-plugin-brrr-now_${version_4part}.zip"
+          mkdir -p artifact
+          cp build/Jellyfin.Plugin.BrrrNow.dll artifact/
+          cd artifact
+          zip "../${zip_name}" Jellyfin.Plugin.BrrrNow.dll
+          cd ..
+          checksum=$(md5sum "${zip_name}" | cut -d' ' -f1)
+          timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          echo "zip_name=${zip_name}" >> "$GITHUB_OUTPUT"
+          echo "checksum=${checksum}" >> "$GITHUB_OUTPUT"
+          echo "timestamp=${timestamp}" >> "$GITHUB_OUTPUT"
+          echo "source_url=https://github.com/${{ github.repository }}/releases/download/${RELEASE_TAG}/${zip_name}" >> "$GITHUB_OUTPUT"
+
+      - name: Upload zip to GitHub Release
+        run: gh release upload "${RELEASE_TAG}" "${{ steps.package.outputs.zip_name }}" --clobber
+
+      - name: Update manifest.json on main
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          git checkout main
+
+          changelog="$(gh release view "${RELEASE_TAG}" --json body --jq '.body' | head -c 5000)"
+
+          jq \
+            --arg version '${{ steps.version.outputs.version_4part }}' \
+            --arg changelog "${changelog:-Release ${RELEASE_TAG}}" \
+            --arg targetAbi "${TARGET_ABI}" \
+            --arg sourceUrl '${{ steps.package.outputs.source_url }}' \
+            --arg checksum '${{ steps.package.outputs.checksum }}' \
+            --arg timestamp '${{ steps.package.outputs.timestamp }}' \
+            '.[0].versions = ([{
+              version: $version,
+              changelog: $changelog,
+              targetAbi: $targetAbi,
+              sourceUrl: $sourceUrl,
+              checksum: $checksum,
+              timestamp: $timestamp
+            }] + .[0].versions)' \
+            manifest.json > manifest.json.tmp
+          mv manifest.json.tmp manifest.json
+
+          if git diff --quiet manifest.json; then
+            echo "manifest.json unchanged; skipping commit"
+            exit 0
+          fi
+
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add manifest.json
+          git commit -m "chore: update manifest for ${RELEASE_TAG}"
+          git push origin main

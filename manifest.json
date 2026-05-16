@@ -1,0 +1,12 @@
+[
+  {
+    "category": "Notifications",
+    "guid": "a4f8c2d7-1e6b-4c8f-9a3d-7e2f5b8c1d9a",
+    "name": "brrr.now Notifications",
+    "description": "Jellyfin plugin that sends server notifications to your Apple devices via brrr.now.",
+    "overview": "Push Jellyfin events (playback, library, plugin lifecycle) to brrr.now.",
+    "owner": "ImLunaHey",
+    "imageUrl": "",
+    "versions": []
+  }
+]

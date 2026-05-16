@@ -19,6 +19,16 @@ Each event is independently toggleable in the plugin settings:
 
 ## Install
 
+### Via Jellyfin's plugin catalog (recommended once a release exists)
+
+1. In Jellyfin, go to **Dashboard → Catalog → Repositories**.
+2. Add a new repository with this URL:
+   ```
+   https://raw.githubusercontent.com/ImLunaHey/jellyfin-plugin-brrr-now/main/manifest.json
+   ```
+3. Go to **Catalog → Notifications**, install **brrr.now Notifications**, and
+   restart Jellyfin.
+
 ### Manual
 
 1. Download `Jellyfin.Plugin.BrrrNow.dll` from the
