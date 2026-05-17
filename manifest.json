@@ -9,6 +9,14 @@
     "imageUrl": "",
     "versions": [
       {
+        "version": "1.0.1.0",
+        "changelog": "## [1.0.1](https://github.com/ImLunaHey/jellyfin-plugin-brrr-now/compare/v1.0.0...v1.0.1) (2026-05-17)\n\n\n### Bug Fixes\n\n* skip Person/Genre/Studio/Year metadata in ItemAdded notifications ([d435e16](https://github.com/ImLunaHey/jellyfin-plugin-brrr-now/commit/d435e164d48e0505b7389da84a020215a8df5322))\n\n---\nThis PR was generated with [Release Please](https://github.com/googleapis/release-please). See [documentation](https://github.com/googleapis/release-please#release-please).\n\n<!-- This is an auto-generated description by cubic. -->",
+        "targetAbi": "10.10.0.0",
+        "sourceUrl": "https://github.com/ImLunaHey/jellyfin-plugin-brrr-now/releases/download/v1.0.1/jellyfin-plugin-brrr-now_1.0.1.0.zip",
+        "checksum": "ea86c49ce77d9d120994bac79762ae3e",
+        "timestamp": "2026-05-17T07:32:51Z"
+      },
+      {
         "version": "1.0.0.0",
         "changelog": "## 1.0.0 (2026-05-16)\n\n\n### Features\n\n* initial Jellyfin plugin for brrr.now notifications ([2cb91c8](https://github.com/ImLunaHey/jellyfin-plugin-brrr-now/commit/2cb91c86282ac215225228f28c706cccaa9b5e77))\n\n---\nThis PR was generated with [Release Please](https://github.com/googleapis/release-please). See [documentation](https://github.com/googleapis/release-please#release-please).\n\n<!-- This is an auto-generated description by cubic. -->",
         "targetAbi": "10.10.0.0",
