@@ -2,6 +2,8 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using MediaBrowser.Controller.Entities;
+using MediaBrowser.Controller.Entities.Audio;
 using MediaBrowser.Controller.Library;
 using MediaBrowser.Controller.Session;
 using Microsoft.Extensions.Hosting;
@@ -62,12 +64,27 @@ public class BrrrNowEventListener : IHostedService
         });
 
     private void OnItemAdded(object? sender, ItemChangeEventArgs e)
-        => Fire(config => config.NotifyOnItemAdded, () =>
+    {
+        if (!IsLibraryMedia(e.Item))
         {
-            var name = e.Item?.Name ?? "an item";
-            var kind = e.Item?.GetType().Name ?? "Item";
+            return;
+        }
+
+        Fire(config => config.NotifyOnItemAdded, () =>
+        {
+            var name = e.Item!.Name ?? "an item";
+            var kind = e.Item.GetType().Name;
             return ($"New {kind}", $"{name} was added to the library.");
         });
+    }
+
+    private static bool IsLibraryMedia(BaseItem? item) =>
+        item is not null
+        && item is not Person
+        && item is not Genre
+        && item is not Studio
+        && item is not Year
+        && item is not MusicGenre;
 
     private void Fire(Func<Configuration.PluginConfiguration, bool> enabled, Func<(string Title, string Message)> build)
     {
