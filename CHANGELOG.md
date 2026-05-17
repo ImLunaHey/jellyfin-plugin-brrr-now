@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/ImLunaHey/jellyfin-plugin-brrr-now/compare/v1.0.0...v1.0.1) (2026-05-17)
+
+
+### Bug Fixes
+
+* skip Person/Genre/Studio/Year metadata in ItemAdded notifications ([d435e16](https://github.com/ImLunaHey/jellyfin-plugin-brrr-now/commit/d435e164d48e0505b7389da84a020215a8df5322))
+
 ## 1.0.0 (2026-05-16)
 
 
